@@ -32,6 +32,7 @@ def create_retry_session(total=None,
         total=total,
         backoff_factor=backoff_factor,
         status_forcelist=status_forcelist,
+        allowed_methods=frozenset({'GET', 'POST'}),
         **kwargs
     )
     session = requests.Session()
@@ -46,7 +47,6 @@ class AixplainClient:
     def __init__(self, base_url: str,
                  aixplain_api_key: str = None,
                  team_api_key: str = None,
-                 max_retries: int = 5,
                  retry_total=None,
                  retry_backoff_factor=None,
                  retry_status_forcelist=None):
@@ -70,6 +70,10 @@ class AixplainClient:
         self.aixplain_api_key = aixplain_api_key
 
         if not (self.aixplain_api_key or self.team_api_key):
+            raise ValueError(
+                'Either `aixplain_api_key` or `team_api_key` should be set')
+
+        if self.aixplain_api_key and self.team_api_key:
             raise ValueError(
                 'Either `aixplain_api_key` or `team_api_key` should be set')
 
