@@ -177,15 +177,12 @@ def test_client_request():
         response = client.request('GET', 'fail')
 
 
-@httpretty.activate
 def test_client_get():
     """
     Test the `get` method of the `AixplainClient` class.
 
     Ensure it internally calls the `request` method with correct parameters.
     """
-    success_url = f'{BASE_URL}/success'
-    httpretty.register_uri(httpretty.GET, success_url, body='OK', status=200)
     client = AixplainClient(BASE_URL, team_api_key='some_key')
 
     with patch.object(AixplainClient, 'request') as mock_request:
