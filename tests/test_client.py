@@ -23,6 +23,9 @@ def teardown_function():
 
 
 def test_create_retry_session_defaults():
+    """
+    Test the default retry settings of the `create_retry_session` function.
+    """
     session = create_retry_session()
     assert session
     assert session.adapters
@@ -44,6 +47,14 @@ def test_create_retry_session_defaults():
 def test_create_retry_session_customs(total,
                                       backoff_factor,
                                       status_forcelist):
+    """
+    Test custom retry settings of the `create_retry_session` function.
+
+    Parameters:
+    - total (int): Total number of retries.
+    - backoff_factor (float): Backoff factor between retries.
+    - status_forcelist (list): HTTP status codes to force a retry on.
+    """
     session = create_retry_session(
         total=total,
         backoff_factor=backoff_factor,
@@ -60,6 +71,9 @@ def test_create_retry_session_customs(total,
 
 
 def test_client_constructor_defaults():
+    """
+    Test the default constructor settings of the `AixplainClient` class.
+    """
     aixplain_api_key = 'some_key'
 
     mock_session = requests.Session()
@@ -87,6 +101,9 @@ def test_client_constructor_defaults():
 
 
 def test_client_constructor_customs():
+    """
+    Test custom constructor settings of the `AixplainClient` class.
+    """
     aixplain_api_key = 'some_key'
     team_api_key = 'some_other_key'
 
@@ -122,8 +139,8 @@ def test_client_constructor_customs():
         assert client.session == mock_session
 
         # session headers
-        assert 'x-api-key' in client.session.headers
-        assert client.session.headers['x-api-key'] == team_api_key
+        assert client.session.headers.get('Content-Type') == 'application/json'
+        assert client.session.headers.get('x-api-key') == team_api_key
         assert 'x-aixplain-key' not in client.session.headers
 
         mock_create_retry.assert_called_once_with(
@@ -134,16 +151,45 @@ def test_client_constructor_customs():
 
 
 @httpretty.activate
-def test_request():
+def test_client_request():
+    """
+    Test the `request` method of the `AixplainClient` class.
+
+    Check successful requests and ensure failed requests raise exceptions.
+    """
     success_url = f'{BASE_URL}/success'
     fail_url = f'{BASE_URL}/fail'
     httpretty.register_uri(httpretty.GET, success_url, body='OK', status=200)
     httpretty.register_uri(httpretty.GET, fail_url, body='NOK', status=500)
 
-    client = AixplainClient(BASE_URL, aixplain_api_key='some_key')
-    response = client.get('success')
+    team_api_key = 'some_key'
+    client = AixplainClient(BASE_URL, team_api_key=team_api_key)
+    response = client.request('GET', 'success', headers={'foo': 'bar'})
+
+    assert isinstance(response, requests.Response)
+    assert response.request.headers.get('x-api-key') == team_api_key
+    assert response.request.headers.get('Content-Type') == 'application/json'
+    assert response.request.headers.get('foo') == 'bar'
     assert response.status_code == 200
     assert response.text == 'OK'
 
     with pytest.raises(requests.RequestException):
-        response = client.get('fail')
+        response = client.request('GET', 'fail')
+
+
+@httpretty.activate
+def test_client_get():
+    """
+    Test the `get` method of the `AixplainClient` class.
+
+    Ensure it internally calls the `request` method with correct parameters.
+    """
+    success_url = f'{BASE_URL}/success'
+    httpretty.register_uri(httpretty.GET, success_url, body='OK', status=200)
+    client = AixplainClient(BASE_URL, team_api_key='some_key')
+
+    with patch.object(AixplainClient, 'request') as mock_request:
+        client.get('success', headers={'foo': 'bar'})
+        mock_request.assert_called_once_with('GET',
+                                             'success',
+                                             headers={'foo': 'bar'})
