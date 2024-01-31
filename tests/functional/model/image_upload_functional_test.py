@@ -1,9 +1,10 @@
 __author__ = "michaellam"
+
 from pathlib import Path
 import json
-from aixplain.utils import config
-from tests.test_utils import delete_asset, delete_service_account
 from aixplain.factories.model_factory import ModelFactory
+from tests.test_utils import delete_asset, delete_service_account
+from aixplain.utils import config
 import pytest
 
 def test_login():
@@ -17,21 +18,23 @@ def test_login():
 
 def test_create_asset_repo():
     with open(Path("tests/test_requests/create_asset_request.json")) as f:
-        mock_register_payload = json.load(f)
-    name = mock_register_payload["name"]
-    host_machine = mock_register_payload["hostingMachine"]
-    version = mock_register_payload["version"]
-    description = mock_register_payload["description"]
-    function = mock_register_payload["function"]
-    source_language = mock_register_payload["sourceLanguage"]
-    response = ModelFactory.create_asset_repo(name, host_machine, version, description, function, source_language)
-    print(response)
-    response_dict = dict(response)
-    assert "id" in response_dict.keys()
-    assert "repositoryName" in response_dict.keys()
+        mock_register_payload_dict = json.load(f)
+    for key in mock_register_payload_dict.keys():
+        mock_register_payload = mock_register_payload_dict[key]
+        name = mock_register_payload["name"]
+        description = mock_register_payload["description"]
+        function = mock_register_payload["function"]
+        input_modality = mock_register_payload["input_modality"]
+        output_modality = mock_register_payload["input_modality"]
+        source_language = mock_register_payload["sourceLanguage"]
+        response = ModelFactory.create_asset_repo(name, description, function, input_modality, output_modality, source_language)
+        print(response)
+        response_dict = dict(response)
+        assert "id" in response_dict.keys()
+        assert "repositoryName" in response_dict.keys()
 
-    # Test cleanup
-    delete_asset(response["id"], config.TEAM_API_KEY)
+        # Test cleanup
+        delete_asset(response["id"], config.TEAM_API_KEY)
 
 def test_list_host_machines():
     response = ModelFactory.list_host_machines()

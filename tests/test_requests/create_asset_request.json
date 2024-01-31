@@ -1,8 +1,74 @@
 {
-    "name": "mock_name",
-    "hostingMachine": "aix-2c-8g-od",
-    "version": "mock_version",
-    "description": "mock_description",
-    "function": "Speech Recognition",
-    "sourceLanguage": "en"
+    "text_generation":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Text Generation",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "text_summarization":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Text summarization",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "translation":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Translation",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "text_reconstruction":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Text Reconstruction",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "subtitling_translation":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Subtitling Translation",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "fill_text_mask":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Fill Text Mask",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "diacritization":
+    {
+        "name": "mock_name",
+        "description": "mock_description",
+        "function": "Diacritization",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    },
+    "search":
+    {
+        "name": "mock_name",
+        "description": "mock",
+        "function": "Search",
+        "input_modality": "text",
+        "output_modality": "text",
+        "sourceLanguage": "en"
+    }
 }
