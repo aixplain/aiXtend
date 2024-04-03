@@ -282,7 +282,7 @@ class DatasetFactory(AssetFactory):
         error_handler: ErrorHandler = ErrorHandler.SKIP,
         s3_link: Optional[Text] = None,
         aws_credentials: Optional[Dict[Text, Text]] = {"AWS_ACCESS_KEY_ID": None, "AWS_SECRET_ACCESS_KEY": None},
-        api_key: Optional[Text] = None
+        api_key: Optional[Text] = None,
     ) -> Dict:
         """Dataset Onboard
 
@@ -496,7 +496,7 @@ class DatasetFactory(AssetFactory):
             if csv_path is not None and os.path.exists(csv_path) is True:
                 os.remove(csv_path)
         except Exception as e:
-            if folder is not None:
+            if folder is not None and os.path.exists(folder) is True:
                 shutil.rmtree(folder)
             if csv_path is not None and os.path.exists(csv_path) is True:
                 os.remove(csv_path)
