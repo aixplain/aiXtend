@@ -80,9 +80,12 @@ def run(metadata: MetaData, paths: List, folder: Path, batch_size: int = 1000) -
             try:
                 text_path = row[metadata.name]
             except Exception as e:
-                message = f'Data Asset Onboarding Error: Column "{metadata.name}" not found in the local file {path}.'
-                logging.exception(message)
-                raise Exception(message)
+                try:
+                    text_path = row[metadata.id]
+                except Exception:
+                    message = f'Data Asset Onboarding Error: Neither columns "{metadata.id}" nor "{metadata.name}" were found in the local file {path}.'
+                    logging.exception(message)
+                    raise Exception(message)
 
             try:
                 text = process_text(text_path, metadata.storage_type)

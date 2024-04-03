@@ -70,9 +70,12 @@ def run(metadata: MetaData, paths: List, folder: Path, batch_size: int = 100) ->
             try:
                 media_path = row[metadata.name]
             except Exception as e:
-                message = f'Data Asset Onboarding Error: Column "{metadata.name}" not found in the local file "{path}".'
-                logging.exception(message)
-                raise Exception(message)
+                try:
+                    media_path = row[metadata.id]
+                except Exception:
+                    message = f'Data Asset Onboarding Error: Neither columns "{metadata.id}" nor "{metadata.name}" were found in the local file {path}.'
+                    logging.exception(message)
+                    raise Exception(message)
 
             # adding medias
             if metadata.storage_type == StorageType.FILE:
