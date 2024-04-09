@@ -464,7 +464,7 @@ def build_payload_update(dataset_data: List[Data]) -> Dict:
 
 def update_data_asset(
     data_asset_id: Text, payload: Dict, data_asset_type: Text = "corpus", api_key: Optional[Text] = None
-) -> Dict:
+) -> bool:
     """Service to call update process in coreengine
 
     Args:
@@ -480,28 +480,31 @@ def update_data_asset(
         team_key = api_key
     else:
         team_key = config.TEAM_API_KEY
-    headers = {"Authorization": "token " + team_key}
+    aixplain_key = config.AIXPLAIN_API_KEY
+    headers = {"x-aixplain-key": f"{aixplain_key}", "Content-Type": "application/json"}
 
     url = urljoin(config.BACKEND_URL, f"sdk/{data_asset_type}/{data_asset_id}/append-data")
     logging.debug(f"Start service for POST Update Data Asset  - {url} - {headers} - {payload}")
     r = _request_with_retry("post", url, headers=headers, json=payload)
     if 200 <= r.status_code < 300:
-        response = r.json()
+        return True
+        # response = r.json()
 
-        asset_id = response["id"]
-        status = response["status"]
+        # asset_id = response["id"]
+        # status = response["status"]
 
-        return {
-            "success": True,
-            "asset_id": asset_id,
-            "status": status,
-            # "coreengine_payload": coreengine_payload
-        }
+        # return {
+        #     "success": True,
+        #     "asset_id": asset_id,
+        #     "status": status,
+        #     # "coreengine_payload": coreengine_payload
+        # }
     else:
-        try:
-            response = r.json()
-            msg = response["message"]
-            error_msg = f"Data Asset Onboarding Error: {msg}"
-        except Exception as e:
-            error_msg = f"Data Asset Onboarding Error: Failure on updating the {data_asset_type} `{data_asset_id}`. Please contant the administrators."
-        return {"success": False, "error": error_msg}
+        return False
+        # try:
+        #     response = r.json()
+        #     msg = response["message"]
+        #     error_msg = f"Data Asset Onboarding Error: {msg}"
+        # except Exception as e:
+        #     error_msg = f"Data Asset Onboarding Error: Failure on updating the {data_asset_type} `{data_asset_id}`. Please contant the administrators."
+        # return {"success": False, "error": error_msg}

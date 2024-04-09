@@ -609,10 +609,10 @@ class DatasetFactory(AssetFactory):
             response = onboard_functions.update_data_asset(
                 data_asset_id=dataset.id, payload=dataset_payload, data_asset_type="datasets", api_key=api_key
             )
-            if response["success"] is True:
-                return_dict = {"status": response["status"], "asset_id": response["asset_id"]}
+            if response is True:
+                return_dict = {"status": "UPDATING", "asset_id": dataset.id}
             else:
-                raise Exception(response["error"])
+                raise Exception("Data Asset Onboarding Error: Failure on calling update service.")
             shutil.rmtree(folder)
         except Exception as e:
             if folder is not None:
