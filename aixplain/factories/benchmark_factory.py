@@ -155,9 +155,9 @@ class BenchmarkFactory:
         if len(payload["datasets"]) != 1:
             raise Exception("Please use exactly one dataset")
         if len(payload["metrics"]) == 0:
-            raise Exception("Please use exactly one metric")
+            raise Exception("Please use at least metric")
         if len(payload["model"]) == 0:
-            raise Exception("Please use exactly one model")
+            raise Exception("Please use at least one model")
         clean_metrics_info = {}
         for metric_info in payload["metrics"]:
             metric_id = metric_info["id"]
@@ -259,3 +259,22 @@ class BenchmarkFactory:
         scores_df = benchmarkJob.get_scores()
         scores_df["Model"] = scores_df["Model"].apply(lambda x: __get_model_name(x))
         return scores_df
+    
+    @classmethod
+    def aggregate_scores_benchmark_jobs(cls, job_list):
+        benchmarkJobs, benchmarks = [], []
+        for job_id in job_list:
+            benchmarkJob = cls.get_job(job_id)
+            benchmark = cls.get(benchmarkJob.benchmark_id)
+            benchmarkJobs.append(benchmarkJob)
+            benchmarks.append(benchmark)
+        #ToDo: Validation
+        df_list = []
+        for i, job_id in enumerate(job_list):
+            benchmark = benchmarks[i]
+            first_dataset = benchmark.dataset_list[0]
+            benchmark_df = cls.get_benchmark_job_scores(job_id)
+            benchmark_df["Dataset"] = first_dataset.name
+            df_list.append(benchmark_df)
+        combined_df = pd.concat(df_list)
+        return combined_df
