@@ -210,6 +210,38 @@ class BenchmarkFactory:
             error_message = f"Creating Benchmark Job: Error in Creating Benchmark with payload {payload} : {e}"
             logging.error(error_message, exc_info=True)
             return None
+        
+    @classmethod
+    def _create_multi(cls, name: str, dataset_list: List[Dataset], model_list: List[Model], layered_metric_list: List[List[Metric]]) -> List[Benchmark]:
+        benchmarks = []
+        for i, dataset in enumerate(dataset_list):
+            try:
+                metric_list = layered_metric_list[i]
+                payload = {}
+                url = urljoin(cls.backend_url, f"sdk/benchmarks")
+                headers = {"Authorization": f"Token {config.TEAM_API_KEY}", "Content-Type": "application/json"}
+                payload = {
+                    "name": name,
+                    "datasets": [dataset.id],
+                    "model": [model.id for model in model_list],
+                    "metrics": [{"id": metric.id, "configurations": metric.normalization_options} for metric in metric_list],
+                    "shapScores": [],
+                    "humanEvaluationReport": False,
+                    "automodeTraining": False,
+                }
+                clean_payload = cls._validate_create_benchmark_payload(payload)
+                payload = json.dumps(clean_payload)
+                r = _request_with_retry("post", url, headers=headers, data=payload)
+                resp = r.json()
+                logging.info(f"Creating Benchmark Job: Status for {name}: {resp}")
+                benchmark = cls.get(resp["id"])
+                benchmarks.append(benchmark)
+            except Exception as e:
+                error_message = f"Creating Benchmark Job: Error in Creating Benchmark with payload {payload} : {e}"
+                logging.error(error_message, exc_info=True)
+                continue
+        return benchmarks
+
 
     @classmethod
     def list_normalization_options(cls, metric: Metric, model: Model) -> List[str]:
